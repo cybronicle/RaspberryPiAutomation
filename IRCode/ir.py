@@ -15,3 +15,4 @@ if name == "main":
   v=(readChannel(0)/1023.0)*3.3
   dist = 16.2537 * v4 - 129.893 * v3 + 382.268 * v**2 - 512.611 * v + 301.439
   print "Distanz: %.2f cm" % dist
+
