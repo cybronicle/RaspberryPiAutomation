@@ -2,8 +2,6 @@
 from ServoPi import PWM
 from ServoPi import Servo
 
-
-
 #use __init__ function to pass the pin values when recieved for each servo instance
 PIN_left = 0
 PIN_right = 1
