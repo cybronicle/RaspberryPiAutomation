@@ -1,12 +1,13 @@
 #Butt ton of imports
-import spidev
-import  time
+import time
 import Adafruit_PCA9685
 import CONSTANTS as c
 
 class Motor:
 
     currentSpeed = 0
+    currentRight = 0
+    currentLeft = 0
     currentDir = None
     obsForward = None
     obsBehind = None
@@ -14,30 +15,28 @@ class Motor:
     obsRight = None
     pwm = Adafruit_PCA9685.PCA9685()
 
-    #Function to accelerate forward
-    def accelerate(self, motor1 = False, motor2 = False, speed1 = c.SERVOMAX, speed2 =c.SERVOMAX):
+    #Function to accelerate forward (Basically just sets the speed
+    def accelerate(self, motor1 = False, motor2 = False, speed1 = c.SERVOMAX, speed2 = -c.SERVOMAX):
 
-        if motor1 is True and motor2 is True and speed2 is False:
+        if motor1 is True and motor2 is True:
 
-            for (Motor.currentSpeed) in range(speed1):
+            Motor.set_pwm(0, speed1, 0)
+            Motor.set_pwm(15, speed2, 0)
 
-                Motor.set_pwm(0, Motor.currentSpeed, 0)
-                Motor.set_pwm(15, -Motor.currentSpeed, 0)
+        elif motor1 is True and motor2 is False:
 
-        elif motor1 is True and motor2 is True and speed2 is not False:
+            Motor.set_pwm(0, speed1, 0)
 
-            if abs(Motor.currentSpeed - speed1) > abs(Motor.currentSpeed - speed2):
+        elif motor1 is False and motor2 is True:
 
-                tempMax = speed1
+            Motor.set_pwm(15, speed2, 0)
 
-            else:
+        else:
 
-                tempMax = speed2
-
-            for (Motor.currentSpeed) in range(tempMax):
+            for Motor.currentSpeed in range(c.SERVOMAX):
 
                 Motor.set_pwm(0, speed1, 0)
-                Motor.set_pwm(15,speed2, 0)
+                Motor.set_pwm(15, speed2, 0)
 
     #Function to slow down
     def deccelerate(self, motor1 = False, motor2 = False, speed1 = c.SERVOMIN, speed2 = c.SERVOMIN):
@@ -79,8 +78,56 @@ class Motor:
     #Function to turn the car left
     def turnLeft(self, hardness = 0):
 
+        if hardness == 0:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * .2)
+
+        elif hardness == 1:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * .4)
+
+        elif hardness == 2:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * .6)
+
+        elif hardness == 3:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * .8)
+
+        elif hardness == 4:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * 1)
+
+        else:
+
+            self.accelerate(motor2 = True, speed2 = self.currentRight * .2)
+
     #Function to turn the car right
     def turnRight(self, hardness = 0):
+
+        if hardness == 0:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * .2)
+
+        elif hardness == 1:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * .4)
+
+        elif hardness == 2:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * .6)
+
+        elif hardness == 3:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * .8)
+
+        elif hardness == 4:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * 1)
+
+        else:
+
+            self.accelerate(motor1 = True, speed1 = self.currentLeft * .2)
 
     #Function to stop the car
     def stop(self, motor1 = False, motor2 = False):
@@ -106,23 +153,38 @@ class Motor:
 
         Motor.stop()
         time.sleep(.5)
-        Motor.deccelerate()
+        Motor.accelerate()
 
     #Begin going straight forward
     def start(self):
 
-        Motor.stop()
-        time.sleep(.5)
-        Motor.accelerate()
+        for i in range(c.SERVOMAX/2):
 
+            Motor.accelerate(motor1 = True, motor2 = True, speed1 = i, speed2 = i)
+
+    #Set each motor to the same speed
+    def normalize(self):
+
+        if abs(Motor.currentLeft) > abs(Motor.currentRight):
+
+            self.accelerate(motor1 = True, speed1 = Motor.currentRight)
+
+        if abs(Motor.currentLeft) < abs(Motor.currentRight):
+
+            self.accelerate(motor2 = True, speed2 = Motor.currentLeft)
+
+        else:
+
+            pass
 
 def pingSenseHat():
 
+    pass
+
 def pingUltra():
+
+    pass
 
 def playMusic(file):
 
-def readChannel(channel):
-    val = spi.xfer2([1, (8 + channel) << 4, 0])
-    data = ((val[1] & 3) << 8) + val[2]
-    return data
+    pass
