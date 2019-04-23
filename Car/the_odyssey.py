@@ -5,7 +5,7 @@ import multiprocessing
 car = u.Motor()
 
 # start openCV
-CV = multiprocessing.Process(name = 'oracle', target = '/oracle.py')
+CV = multiprocessing.Process(name='oracle', target='/oracle.py')
 
 # connect to site if we have time
 
@@ -33,11 +33,11 @@ while True:
 
         car.normalize()
 
-    if state > 0 and state < 6:
+    if 0 < state <= 5:
 
         car.turnLeft(state - 1)
 
-    if state > 5 and state < 11:
+    if 6 <= state <= 10:
 
         car.turnRight(state - 6)
 
