@@ -139,15 +139,3 @@ class Motor:
         else:
 
             pass
-
-def pingSenseHat():
-
-    pass
-
-def pingUltra():
-
-    pass
-
-def playMusic(file):
-
-    pass

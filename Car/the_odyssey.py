@@ -1,12 +1,13 @@
 import utils as u
-import oracle
+import multiprocessing
 
 # Set up the motor object
 car = u.Motor()
 
 # start openCV
+CV = multiprocessing.Process(name = 'oracle', target = '/oracle.py')
 
-# connect to site
+# connect to site if we have time
 
 # 0 means full speed ahead
 states = ["Full Speed", "0 left", "1 left", "2 left", "3 left", "4 left", "0 right", "1 right", "2 right", "3 right",
@@ -14,10 +15,18 @@ states = ["Full Speed", "0 left", "1 left", "2 left", "3 left", "4 left", "0 rig
 state = 0
 
 car.start()
+CV.start()
 
 while True:
 
-    # Ping openCV
+    # Ping openCV to set the state
+    try:
+
+        state = True
+
+    except:
+
+        pass
 
     # Decide the next state
     if state == 0:
