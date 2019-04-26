@@ -1,48 +1,58 @@
+#!/usr/bin/python3
+
 import utils as u
-import multiprocessing
+from multiprocessing import Process, Queue, Pipe
+import cv2
+from oracle import oracling
 
-# Set up the motor object
-car = u.Motor()
 
-# start openCV
-CV = multiprocessing.Process(name='oracle', target='/oracle.py')
+def motor():
+    currentState = 0
 
-# connect to site if we have time
+    # Set up the motor object
+    car = u.Motor()
+    car.build()
 
-# 0 means full speed ahead
-states = ["Full Speed", "0 left", "1 left", "2 left", "3 left", "4 left", "0 right", "1 right", "2 right", "3 right",
-          "4 right"]
-state = 0
+    # Set up the OpenCV Process with pipe
+    parent_conn, child_conn = Pipe()
+    p = Process(target=oracling, args=(child_conn,))
+    p.start()
 
-car.start()
-CV.start()
+    # What the different states mean
+    states = ["Full Speed", "0 left", "1 left", "2 left", "3 left", "4 left", "0 right", "1 right", "2 right",
+              "3 right",
+              "4 right"]
 
-while True:
+    car.start()
 
-    # Ping openCV to set the state
-    try:
+    while True:
+        val = parent_conn.recv()
 
-        state = True
+        # Decide the next state
+        if (val == 0):
+            currentState = val
+            car.setSpeed(motor1=True, motor2=True)
+            print('Val = 0, right speed is %f, car left speed is %f' % (car.currentRight, car.currentLeft))
 
-    except:
+        elif (0 < val <= 5):
+            currentState = val - 1
+            car.turnLeft(hardness=currentState)
+            print('Val = %d, right speed is %f, car left speed is %f' % (val, car.currentRight, car.currentLeft))
 
-        pass
+        elif ((6 <= val <= 10)):
+            currentState = val
+            car.turnRight(hardness=val - 6)
+            print('Val = %d right speed is %f, car left speed is %f' % (val, car.currentRight, car.currentLeft))
 
-    # Decide the next state
-    if state == 0:
+        elif (val == 13):
+            currentState = 13
+            car.stop()
+            print('Val = %d, right speed is %f, car left speed is %f' % (val, car.currentRight, car.currentLeft))
+            p.close()
 
-        car.normalize()
+        else:
+            currentState = 11
+            car.stop()
+            print('Val = %d, right speed is %f, car left speed is %f' % (val, car.currentRight, car.currentLeft))
 
-    if 0 < state <= 5:
-
-        car.turnLeft(state - 1)
-
-    if 6 <= state <= 10:
-
-        car.turnRight(state - 6)
-
-    else:
-
-        car.stop()
-
-    # Send video stream to site
+motor()
